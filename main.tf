@@ -141,3 +141,32 @@ module "clickhouse" {
 
   kms_key_arn = local.kms_key_arn
 }
+
+module "brainstore" {
+  source = "./modules/brainstore"
+  count  = var.enable_brainstore ? 1 : 0
+
+  deployment_name        = var.deployment_name
+  instance_count         = var.brainstore_instance_count
+  instance_type          = var.brainstore_instance_type
+  instance_key_pair_name = var.brainstore_instance_key_pair_name
+  port                   = var.brainstore_port
+  license_key            = var.brainstore_license_key
+  version_override       = var.brainstore_version_override
+
+  database_host       = module.database.postgres_database_address
+  database_port       = module.database.postgres_database_port
+  database_secret_arn = module.database.postgres_database_secret_arn
+  redis_host          = module.redis.redis_endpoint
+  redis_port          = module.redis.redis_port
+
+  vpc_id            = module.main_vpc.vpc_id
+  security_group_id = module.main_vpc.default_security_group_id
+  private_subnet_ids = [
+    module.main_vpc.private_subnet_1_id,
+    module.main_vpc.private_subnet_2_id,
+    module.main_vpc.private_subnet_3_id
+  ]
+
+  kms_key_arn = local.kms_key_arn
+}
